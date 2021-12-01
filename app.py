@@ -1,5 +1,5 @@
-# expression
-expression = "A+B*C/(E-F)"  # debug expression
+# expression input
+expression = input("Enter Expression: ")  # debug expression
 
 # stack array
 stack = []
@@ -48,7 +48,7 @@ def convertStr(array):
         string = string + str(array[i])
     return string
 
-# check stack loc
+# check stack location
 def checkStack(stackLoc, i):
     if((stackLoc - 1) != -1):
         if(checkOpr(stack[stackLoc]) == checkOpr(stack[stackLoc - 1])):
@@ -94,6 +94,7 @@ def convert(infix, e):
 convert(expression, 0)  # send to function for postfix
 convert(convertExpression(expression), 1)  # send to function for prefix
 
+print("")
 print("Postfix:-")
 print(convertStr(arrConvert[0]))
 print("")
