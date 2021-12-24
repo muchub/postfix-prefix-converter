@@ -1,102 +1,92 @@
 # expression input
 expression = input("Enter Expression: ")  # debug expression
 
-# stack array
+# Stack
+stackTop = 0
+stackMax = 2
 stack = []
 
-# postfix/prefix 2D array
-arrConvert = [
-    [],  # postfix
-    []  # prefix
-]
+# Push on stack
+def push(string):
+    global stackTop
+    global stackMax
+    if(stackTop == stackMax):
+        print("stackFull")
+    else:
+        stack.append(string)
+        stackTop = stackTop + 1
+        return stackTop
+
+# Pop from stack
+def pop():
+    global stackTop
+    if(stackTop == 0):
+        print("stackEmpty")
+    else:
+        stack.pop()
+        stackTop = stackTop - 1
 
 # Convert expression to backward
-def convertExpression(infix):
-    string = []
-    for i in range(len(list(infix))):
-        string.append(infix[i])
-    i = len(string) - 1
+def reverseExpression(infix):
+    string = ""
+    i = len(infix) - 1
     while(i >= 0):
-        if(string[i] == ")"):
-            string.append("(")
-            string.pop(i)
-        elif(string[i] == "("):
-            string.append(")")
-            string.pop(i)
+        if(infix[i] == ")"):
+            string = string + "("
+        elif(infix[i] == "("):
+            string = string + ")"
         else:
-            string.append(string[i])
-            string.pop(i)
+            string = string + str(infix[i])
         i = i - 1
     return string
 
 # check operation priority
 def checkOpr(symbol):
-    operation = [
-        ['+', '-', '*', '/', '^'],
-        [1, 1, 2, 2, 3]
-    ]
     priority = 0
-    for i in range(len(operation[0])):
-        if(symbol == operation[0][i]):
-            priority = operation[1][i]
+    if(symbol == "+" or symbol == "-"):
+        priority = 1
+    if(symbol == "*" or symbol == "/"):
+        priority = 2
+    if(symbol == "^"):
+        priority = 3
     return priority
 
-# convert array to string
-def convertStr(array):
-    string = ""
-    for i in range(len(array)):
-        string = string + str(array[i])
-    return string
-
-# check stack location
-def checkStack(stackLoc, i):
-    if((stackLoc - 1) != -1):
-        if(checkOpr(stack[stackLoc]) == checkOpr(stack[stackLoc - 1])):
-            arrConvert[i].append(stack[stackLoc - 1])
-            stack.pop(stackLoc - 1)
-        elif(checkOpr(stack[stackLoc]) < checkOpr(stack[stackLoc - 1])):
-            arrConvert[i].append(stack[stackLoc - 1])
-            stack.pop(stackLoc - 1)
-
 # convert to postfix/prefix function
-def convert(infix, e):
+def convert(infix):
+    output = ""
+    global stackTop
     for i in range(len(list(infix))):
         if(infix[i] == "+" or infix[i] == "-" or infix[i] == "*" or infix[i] == "/" or infix[i] == "^"):
-            stack.append(infix[i])
-            stackLen = len(stack)
-            j = 0
-            while(j < stackLen):
-                j = j + 1
-            checkStack(j - 1, e)
+            push(infix[i])
+            stackLoc = stackTop - 1 #stack location
+            if((stackLoc - 1) != -1):
+                if(checkOpr(stack[stackLoc]) <= checkOpr(stack[stackLoc - 1])): #check priority
+                    output = output + str(stack[stackLoc - 1])
+                    stack.pop(stackLoc - 1)
+                    stackTop = stackTop - 1
         elif(infix[i] == "(" or infix[i] == ")"):
-            stack.append(infix[i])
+            push(infix[i])
             if(infix[i] == ")"):
-                j = len(stack) - 1
+                j = stackTop - 1
                 while(j >= 0):
-                    if(str(stack[j]) == ")"):
-                        stack.pop(j)
-                    elif(str(stack[j]) == "("):
-                        stack.pop(j)
+                    if(stack[j] == ")"):
+                        pop()
+                    elif(stack[j] == "("):
+                        pop()
                         break
                     else:
-                        arrConvert[e].append(stack[j])
-                        stack.pop(j)
+                        output = output + str(stack[j])
+                        pop()
                     j = j - 1
         else:
-            arrConvert[e].append(infix[i])
-
-    i = len(stack) - 1
+            output = output + str(infix[i])
+    i = stackTop - 1
     while(i >= 0):
-        arrConvert[e].append(stack[i])
-        stack.pop(i)
+        output = output + str(stack[i])
+        pop()
         i = i - 1
+    return output
 
-convert(expression, 0)  # send to function for postfix
-convert(convertExpression(expression), 1)  # send to function for prefix
-
-print("")
-print("Postfix:-")
-print(convertStr(arrConvert[0]))
-print("")
-print("Prefix:-")
-print(convertStr(convertExpression(arrConvert[1])))
+print("\nPostfix:-\n" + convert(expression))
+prefix = convert(reverseExpression(expression))
+print("\nPrefix:-\n" + str(reverseExpression(prefix)))
